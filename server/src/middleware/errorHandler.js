@@ -10,6 +10,14 @@ export function errorHandler(error, _req, res, _next) {
     return res.status(400).json({ success: false, message: 'Request body contains invalid JSON.' });
   }
 
+  if (error?.type === 'entity.too.large') {
+    return res.status(413).json({ success: false, message: 'Request body is too large.' });
+  }
+
+  if (error?.message === 'Origin is not allowed by the CORS policy.') {
+    return res.status(403).json({ success: false, message: 'This request origin is not permitted.' });
+  }
+
   if (error?.name === 'ValidationError') {
     const errors = Object.fromEntries(
       Object.entries(error.errors).map(([field, detail]) => [field, detail.message]),
