@@ -13,11 +13,12 @@
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^9.5.0",
     "@tanstack/react-query": "^5.108.0",
+    "hiring-fullstack-todo": "file:..",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "zod": "^3.24.1",
-    "react-is": "18.3.1"
+    "react-is": "18.3.1",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
