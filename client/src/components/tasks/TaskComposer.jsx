@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Box, Button, Paper, Stack, TextField } from '@mui/material';
+import { useRef, useState } from 'react';
+import { Box, Button, IconButton, Paper, Stack, TextField } from '@mui/material';
 import { LoaderCircle, Plus } from 'lucide-react';
 import { todoDraftSchema } from '../../validation.js';
 
@@ -8,10 +8,21 @@ const emptyDraft = { title: '', description: '' };
 export default function TaskComposer({ onCreate, isCreating }) {
   const [draft, setDraft] = useState(emptyDraft);
   const [fieldErrors, setFieldErrors] = useState({});
+  const formRef = useRef(null);
+  const titleInputRef = useRef(null);
 
   function updateField(field, value) {
     setDraft((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => ({ ...current, [field]: '' }));
+  }
+
+  function handlePlusClick() {
+    // The leading plus focuses the title field when empty, and submits once a title exists.
+    if (draft.title.trim()) {
+      formRef.current?.requestSubmit();
+    } else {
+      titleInputRef.current?.focus();
+    }
   }
 
   async function handleSubmit(event) {
@@ -36,10 +47,21 @@ export default function TaskComposer({ onCreate, isCreating }) {
   }
 
   return (
-    <Paper component="form" elevation={0} className="composer" onSubmit={handleSubmit} noValidate>
-      <Box className="composer-icon"><Plus size={19} /></Box>
+    <Paper ref={formRef} component="form" elevation={0} className="composer" onSubmit={handleSubmit} noValidate>
+      <IconButton
+        className="composer-icon"
+        type="button"
+        onClick={handlePlusClick}
+        disabled={isCreating}
+        aria-label={draft.title.trim() ? 'Add task' : 'Focus task title'}
+        title={draft.title.trim() ? 'Add task' : 'Enter a task title'}
+      >
+        {isCreating ? <LoaderCircle className="spin" size={19} /> : <Plus size={19} />}
+      </IconButton>
+
       <Stack className="composer-fields" spacing={0.7}>
         <TextField
+          inputRef={titleInputRef}
           value={draft.title}
           onChange={(event) => updateField('title', event.target.value)}
           placeholder="What needs your attention?"
@@ -49,9 +71,11 @@ export default function TaskComposer({ onCreate, isCreating }) {
           required
           error={Boolean(fieldErrors.title)}
           helperText={fieldErrors.title}
-          inputProps={{ maxLength: 100 }}
-          InputProps={{ disableUnderline: true, sx: { fontSize: 14, fontWeight: 700 } }}
-          FormHelperTextProps={{ sx: { mt: 0, fontSize: 10 } }}
+          slotProps={{
+            htmlInput: { maxLength: 100 },
+            input: { disableUnderline: true, sx: { fontSize: 14, fontWeight: 700 } },
+            formHelperText: { sx: { mt: 0, fontSize: 10 } },
+          }}
         />
         <TextField
           value={draft.description}
@@ -62,11 +86,14 @@ export default function TaskComposer({ onCreate, isCreating }) {
           fullWidth
           error={Boolean(fieldErrors.description)}
           helperText={fieldErrors.description}
-          inputProps={{ maxLength: 500 }}
-          InputProps={{ disableUnderline: true, sx: { fontSize: 11 } }}
-          FormHelperTextProps={{ sx: { mt: 0, fontSize: 10 } }}
+          slotProps={{
+            htmlInput: { maxLength: 500 },
+            input: { disableUnderline: true, sx: { fontSize: 11 } },
+            formHelperText: { sx: { mt: 0, fontSize: 10 } },
+          }}
         />
       </Stack>
+
       <Button
         className="add-button"
         type="submit"
