@@ -49,9 +49,11 @@ export default function TaskComposer({ onCreate, isCreating }) {
           required
           error={Boolean(fieldErrors.title)}
           helperText={fieldErrors.title}
-          inputProps={{ maxLength: 100 }}
-          InputProps={{ disableUnderline: true, sx: { fontSize: 14, fontWeight: 700 } }}
-          FormHelperTextProps={{ sx: { mt: 0, fontSize: 10 } }}
+          slotProps={{
+            htmlInput: { maxLength: 100 },
+            input: { disableUnderline: true, sx: { fontSize: 14, fontWeight: 700 } },
+            formHelperText: { sx: { mt: 0, fontSize: 10 } },
+          }}
         />
         <TextField
           value={draft.description}
@@ -62,9 +64,11 @@ export default function TaskComposer({ onCreate, isCreating }) {
           fullWidth
           error={Boolean(fieldErrors.description)}
           helperText={fieldErrors.description}
-          inputProps={{ maxLength: 500 }}
-          InputProps={{ disableUnderline: true, sx: { fontSize: 11 } }}
-          FormHelperTextProps={{ sx: { mt: 0, fontSize: 10 } }}
+          slotProps={{
+            htmlInput: { maxLength: 500 },
+            input: { disableUnderline: true, sx: { fontSize: 11 } },
+            formHelperText: { sx: { mt: 0, fontSize: 10 } },
+          }}
         />
       </Stack>
       <Button
