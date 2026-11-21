@@ -65,7 +65,7 @@ export default function TaskItem({ todo, isBusy, onToggle, onUpdate, onDelete })
             onChange={(event) => updateField('title', event.target.value)}
             error={Boolean(fieldErrors.title)}
             helperText={fieldErrors.title}
-            inputProps={{ maxLength: 100 }}
+            slotProps={{ htmlInput: { maxLength: 100 } }}
             fullWidth
           />
           <TextField
@@ -75,7 +75,7 @@ export default function TaskItem({ todo, isBusy, onToggle, onUpdate, onDelete })
             onChange={(event) => updateField('description', event.target.value)}
             error={Boolean(fieldErrors.description)}
             helperText={fieldErrors.description}
-            inputProps={{ maxLength: 500 }}
+            slotProps={{ htmlInput: { maxLength: 500 } }}
             fullWidth
           />
         </Stack>
@@ -103,7 +103,11 @@ export default function TaskItem({ todo, isBusy, onToggle, onUpdate, onDelete })
         disabled={isBusy}
         icon={<span className="todo-checkbox-empty" />}
         checkedIcon={<Check size={15} />}
-        inputProps={{ 'aria-label': todo.done ? `Mark ${todo.title} as not done` : `Mark ${todo.title} as done` }}
+        slotProps={{
+          input: {
+            'aria-label': todo.done ? `Mark ${todo.title} as not done` : `Mark ${todo.title} as done`,
+          },
+        }}
         className="complete-checkbox"
       />
 
