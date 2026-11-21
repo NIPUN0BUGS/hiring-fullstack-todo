@@ -1,17 +1,17 @@
 {
-  "name": "todo-server",
+  "name": "hiring-fullstack-todo",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
+  "description": "Full-stack TODO app with React, Material UI, TanStack Query, Zod, Express, and MongoDB",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
-    "test": "node --test"
+    "dev": "concurrently -n SERVER,CLIENT -c blue,green \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "test": "npm --prefix server test",
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install"
   },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "mongoose": "^8.9.5"
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }

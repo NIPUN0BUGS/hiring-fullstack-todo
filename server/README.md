@@ -67,14 +67,22 @@ All successful responses use `{ "success": true, "data": ... }`. Errors use `{ "
 
 Mongoose timestamps provide `createdAt` and `updatedAt`. MongoDB generates `_id`.
 
-## Validation and error handling
+## Validation and security
 
-- Title is required, trimmed, and limited to 100 characters.
-- Description is optional, trimmed, and limited to 500 characters.
-- Invalid MongoDB IDs return HTTP 400.
-- Unknown task IDs return HTTP 404.
-- Invalid JSON returns HTTP 400.
-- Unexpected errors return HTTP 500 with a safe production message.
+Zod is used at the API boundary. The server validates every create, update, completion, and ID input independently of the browser. Schemas trim strings, enforce the 100-character title and 500-character description limits, require boolean completion values, and reject unknown keys (`.strict()`). This prevents mass assignment of fields such as `_id`, `done`, timestamps, and MongoDB metadata through the title/description endpoints. Mongoose schema validation remains enabled as a second layer.
+
+The API also applies:
+
+- Helmet security headers and disables the `X-Powered-By` header.
+- An explicit CORS origin allowlist. In production, set `CLIENT_ORIGIN` to the exact frontend origin(s), comma-separated.
+- A rate limit of 120 requests per IP per 15 minutes on `/api`.
+- A 10 KB JSON request-body limit and structured handling for malformed/oversized JSON.
+- Strict 24-character hexadecimal validation for MongoDB ObjectId route parameters.
+- Safe production error messages that do not expose stack traces or internal exception details.
+
+The React client also uses Zod for immediate form feedback, but client-side checks are not a security boundary; server validation is authoritative. CORS controls which browser origins can read API responses, but it is not authentication and does not prevent direct non-browser requests.
+
+Invalid input returns HTTP 400, disallowed browser origins return HTTP 403, oversized request bodies return HTTP 413, rate-limited clients return HTTP 429, unknown task IDs return HTTP 404, and unexpected errors return HTTP 500 with a safe production message.
 
 ## Tests
 
@@ -82,9 +90,10 @@ Mongoose timestamps provide `createdAt` and `updatedAt`. MongoDB generates `_id`
 npm test --prefix server
 ```
 
-The included Node.js tests cover request validation. API integration tests require a running MongoDB instance and are not included in this starter submission.
+The included Node.js tests cover Zod request validation, strict unknown-key rejection, completion values, and ObjectId format validation. API integration tests require a running MongoDB instance.
 
 ## Assumptions and limitations
 
-- There is no authentication or per-user task ownership in this assignment.
+- There is no authentication or per-user task ownership in this assignment. Do not expose this demo as a multi-user production task service without adding authentication and authorization.
+- The in-memory rate limiter is suitable for a single API instance; use a shared store (for example Redis) when running multiple instances.
 - MongoDB must be available before the API starts. The application deliberately does not silently fall back to in-memory storage.

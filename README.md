@@ -1,90 +1,135 @@
-# Daymark — Backend
+# Daymark — Full-stack TODO App
 
-Express REST API with MongoDB persistence using Mongoose.
+A full-stack task manager built for the hiring assignment using **React + Vite**, **Material UI**, **TanStack Query**, **Zod**, **Node.js + Express**, and **MongoDB + Mongoose**.
 
-## Requirements
+## What's included
+
+- View all tasks.
+- Create tasks with a title and optional description.
+- Edit task titles and descriptions.
+- Mark tasks as done / not done.
+- Delete tasks.
+- Filter all, in-progress, and completed tasks.
+- MongoDB persistence, server-side Zod request validation, client-side form validation, loading and error handling.
+- Security headers, strict CORS allowlisting, API rate limiting, request-size limits, and mass-assignment protection.
+- Responsive interface with accessible labels and reduced-motion support.
+
+## Project structure
+
+```text
+hiring-fullstack-todo/
+├── client/                 # React + Vite + MUI frontend
+│   ├── src/
+│   │   ├── app/             # MUI theme and TanStack Query client
+│   │   ├── components/      # Small layout and task components
+│   │   ├── hooks/           # TanStack Query hooks
+│   │   ├── utils/           # UI helpers
+│   │   ├── api.js           # HTTP client
+│   │   ├── App.jsx          # Page composition
+│   │   ├── main.jsx         # Application providers
+│   │   ├── styles.css
+│   │   └── validation.js    # Client-side Zod schemas
+│   └── README.md
+├── server/                 # Express + Mongoose backend
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── utils/
+│   │   ├── app.js
+│   │   └── server.js
+│   ├── tests/
+│   └── README.md
+├── .gitignore
+├── package.json
+└── README.md
+```
+
+## Prerequisites
 
 - Node.js 20.19+ or 22.12+
-- MongoDB Community Server running locally, or a MongoDB Atlas cluster
+- npm
+- MongoDB Community Server, or a MongoDB Atlas database
 
-## Setup
+## Quick start
 
-From the project root:
+1. Install root and app dependencies:
 
-```bash
-npm --prefix server install
-```
+   ```bash
+   npm run install:all
+   ```
 
-Copy the environment template and configure the connection string (PowerShell: `Copy-Item server/.env.example server/.env`; macOS/Linux: `cp server/.env.example server/.env`):
+2. Configure the backend environment:
 
-```bash
-cp server/.env.example server/.env
-```
+   ```bash
+   cp server/.env.example server/.env
+   ```
 
-Example local configuration:
+   Set `MONGODB_URI` to your local MongoDB URL or MongoDB Atlas connection string. On Windows PowerShell, use `Copy-Item server/.env.example server/.env` instead of `cp`.
 
-```env
-PORT=5000
-NODE_ENV=development
-MONGODB_URI=mongodb://127.0.0.1:27017/daymark_todos
-CLIENT_ORIGIN=http://localhost:5173
-```
+3. Start MongoDB (for a local installation), then run both applications:
 
-For MongoDB Atlas, replace `MONGODB_URI` with the connection string from your Atlas cluster. URL-encode any special characters in the database username or password. Do not commit `.env`.
+   ```bash
+   npm run dev
+   ```
 
-Start the API:
+4. Open the frontend at <http://localhost:5173>. The API runs at <http://localhost:5000>.
 
-```bash
-npm --prefix server run dev
-```
+Run the frontend production build with `npm run build` and backend validation tests with `npm test`.
 
-The API starts at <http://localhost:5000>. Health check: <http://localhost:5000/api/health>.
+For separate setup details, API documentation, database notes, assumptions, and limitations, see [`client/README.md`](client/README.md) and [`server/README.md`](server/README.md).
 
-## REST API
+## Security and validation
 
-All successful responses use `{ "success": true, "data": ... }`. Errors use `{ "success": false, "message": "...", "errors": ... }` where field details are relevant.
+The API is the source of truth for validation. Zod schemas enforce allowed fields, trim and constrain user input, validate completion booleans and MongoDB IDs, and reject unexpected properties. The server also uses Helmet, a production CORS allowlist (`CLIENT_ORIGIN`), a 120-requests-per-15-minute API rate limit, and a 10 KB JSON body limit. The client uses Zod for responsive form feedback, but client checks are not a replacement for server validation. See [`server/README.md`](server/README.md) for configuration and limitations.
 
-| Method | Endpoint | Description | Request body |
-| --- | --- | --- | --- |
-| GET | `/api/todos` | Return all tasks, newest first | — |
-| POST | `/api/todos` | Create a task | `{ "title": "...", "description": "..." }` |
-| PUT | `/api/todos/:id` | Update title and/or description | `{ "title": "..." }`, `{ "description": "..." }`, or both |
-| PATCH | `/api/todos/:id/done` | Toggle completion, or set it explicitly | `{ "done": true }` or no body to toggle |
-| DELETE | `/api/todos/:id` | Delete a task | — |
+## API overview
 
-### Data model
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/api/todos` | Get all TODO items |
+| POST | `/api/todos` | Create a TODO item |
+| PUT | `/api/todos/:id` | Update title and/or description |
+| PATCH | `/api/todos/:id/done` | Toggle / set done status |
+| DELETE | `/api/todos/:id` | Delete a TODO item |
 
-```json
-{
-  "_id": "MongoDB ObjectId",
-  "title": "string",
-  "description": "string (optional; stored as an empty string when omitted)",
-  "done": false,
-  "createdAt": "timestamp",
-  "updatedAt": "timestamp"
-}
-```
+## Git and submission workflow
 
-Mongoose timestamps provide `createdAt` and `updatedAt`. MongoDB generates `_id`.
+This project is organized with the assignment's requested branch flow:
 
-## Validation and error handling
+- `main` contains the initial repository README.
+- `develop` contains the full TODO application and its documentation.
 
-- Title is required, trimmed, and limited to 100 characters.
-- Description is optional, trimmed, and limited to 500 characters.
-- Invalid MongoDB IDs return HTTP 400.
-- Unknown task IDs return HTTP 404.
-- Invalid JSON returns HTTP 400.
-- Unexpected errors return HTTP 500 with a safe production message.
+To publish this prepared repository to your GitHub account:
 
-## Tests
+1. Create a **public, empty** repository named `hiring-fullstack-todo` at <https://github.com/new>. Do not initialize it with a README, `.gitignore`, or license because this local repository already has Git history.
+2. From the extracted project folder, connect the new remote and push both branches:
 
-```bash
-npm test --prefix server
-```
+   ```bash
+   git remote add origin https://github.com/NIPUN0BUGS/hiring-fullstack-todo.git
+   git push -u origin main
+   git push -u origin develop
+   ```
 
-The included Node.js tests cover request validation. API integration tests require a running MongoDB instance and are not included in this starter submission.
+3. On GitHub, open a pull request with **base: `main`** and **compare: `develop`**.
+4. In the PR description, include:
+   - A summary of the features implemented.
+   - The rationale for the stack and architecture decisions.
+   - A short demo video of the working platform.
+   - A five-minute code walkthrough explaining the frontend, API, database model, and request flow.
+5. Complete the submission form provided in the recruitment email.
 
-## Assumptions and limitations
+Do not commit secrets, `.env` files, database credentials, or private connection strings. The brief warns that extensive AI-generated code may disqualify submissions; review and understand every file, adapt the implementation yourself, and make sure you can explain and take responsibility for the final code before submitting.
 
-- There is no authentication or per-user task ownership in this assignment.
-- MongoDB must be available before the API starts. The application deliberately does not silently fall back to in-memory storage.
+## Implementation decisions
+
+- MongoDB + Mongoose was selected because it is explicitly encouraged in the brief and maps cleanly to the requested document model.
+- The API is split into routes, controllers, model, Zod validation schemas, and error middleware to keep each responsibility focused.
+- Security controls are applied at the Express boundary; user-provided keys are allowlisted through strict Zod schemas before reaching Mongoose.
+- The completion endpoint accepts `{ "done": boolean }` for predictable client updates, but it also toggles when called without a body, matching the assignment wording.
+- The frontend uses Material UI for reusable accessible controls and a consistent theme.
+- TanStack Query handles server-state fetching, caching, loading/error states, cache invalidation, and optimistic completion/deletion updates with rollback.
+- App.jsx composes focused components; task forms validate with Zod before making API calls.
+- No login, user roles, or deployment configuration was added because those are not requested by the brief.
